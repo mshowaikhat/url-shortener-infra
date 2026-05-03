@@ -22,11 +22,11 @@ resource "google_service_account" "infra_deployer" {
 
 locals {
   service_runtime_roles = [
-    "roles/datastore.user",                # Firestore read/write
-    "roles/secretmanager.secretAccessor",  # Read secrets at runtime
-    "roles/logging.logWriter",             # stdout -> Cloud Logging
-    "roles/monitoring.metricWriter",       # Custom metrics
-    "roles/cloudtrace.agent"               # Send spans to Cloud Trace
+    "roles/datastore.user",               # Firestore read/write
+    "roles/secretmanager.secretAccessor", # Read secrets at runtime
+    "roles/logging.logWriter",            # stdout -> Cloud Logging
+    "roles/monitoring.metricWriter",      # Custom metrics
+    "roles/cloudtrace.agent"              # Send spans to Cloud Trace
   ]
 }
 
