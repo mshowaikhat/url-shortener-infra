@@ -112,11 +112,11 @@ module "workload_identity" {
   repo_to_sa_bindings = {
     shortener = {
       repo_name = var.github_repo_shortener
-      sa_email  = module.iam.shortener_sa_email
+      sa_email  = module.iam.shortener_deployer_sa_email   # was: shortener_sa_email
     }
     redirect = {
       repo_name = var.github_repo_redirect
-      sa_email  = module.iam.redirect_sa_email
+      sa_email  = module.iam.redirect_deployer_sa_email    # was: redirect_sa_email
     }
     infra = {
       repo_name = var.github_repo_infra

@@ -76,3 +76,59 @@ resource "google_project_iam_member" "infra_deployer_roles" {
   role    = each.value
   member  = "serviceAccount:${google_service_account.infra_deployer.email}"
 }
+
+# ----- Per-service deployer SAs -----
+# These SAs are impersonated by GitHub Actions in each service repo to push
+# images and deploy to Cloud Run. They are NOT the runtime SAs.
+
+resource "google_service_account" "shortener_deployer" {
+  project      = var.project_id
+  account_id   = "shortener-deployer-sa"
+  display_name = "Shortener CI/CD Deployer (used by GitHub Actions via WIF)"
+}
+
+resource "google_service_account" "redirect_deployer" {
+  project      = var.project_id
+  account_id   = "redirect-deployer-sa"
+  display_name = "Redirect CI/CD Deployer (used by GitHub Actions via WIF)"
+}
+
+locals {
+  service_deployer_roles = [
+    "roles/artifactregistry.writer", # Push images to AR
+    "roles/run.developer",           # Deploy & update Cloud Run revisions
+    "roles/iam.serviceAccountUser",  # Required: deploy a service that runs as another SA
+  ]
+}
+
+resource "google_project_iam_member" "shortener_deployer_roles" {
+  for_each = toset(local.service_deployer_roles)
+
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.shortener_deployer.email}"
+}
+
+resource "google_project_iam_member" "redirect_deployer_roles" {
+  for_each = toset(local.service_deployer_roles)
+
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.redirect_deployer.email}"
+}
+
+# ----- actAs binding -----
+# When `gcloud run deploy` says "run this container as shortener-sa",
+# the deployer SA needs permission to "act as" that runtime SA.
+
+resource "google_service_account_iam_member" "shortener_deployer_acts_as_runtime" {
+  service_account_id = google_service_account.shortener.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.shortener_deployer.email}"
+}
+
+resource "google_service_account_iam_member" "redirect_deployer_acts_as_runtime" {
+  service_account_id = google_service_account.redirect.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.redirect_deployer.email}"
+}

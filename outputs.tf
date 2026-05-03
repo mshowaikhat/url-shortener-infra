@@ -46,3 +46,11 @@ output "secret_names" {
   description = "Secret Manager secrets created (values must be populated manually)"
   value       = module.secrets.secret_names
 }
+
+output "shortener_deployer_sa_email" {
+  value = module.iam.shortener_deployer_sa_email
+}
+
+output "redirect_deployer_sa_email" {
+  value = module.iam.redirect_deployer_sa_email
+}
