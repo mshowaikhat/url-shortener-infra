@@ -102,3 +102,30 @@ module "redirect_service" {
     module.iam,
   ]
 }
+
+module "workload_identity" {
+  source = "./modules/workload_identity"
+
+  project_id   = var.project_id
+  github_owner = var.github_owner
+
+  repo_to_sa_bindings = {
+    shortener = {
+      repo_name = var.github_repo_shortener
+      sa_email  = module.iam.shortener_sa_email
+    }
+    redirect = {
+      repo_name = var.github_repo_redirect
+      sa_email  = module.iam.redirect_sa_email
+    }
+    infra = {
+      repo_name = var.github_repo_infra
+      sa_email  = module.iam.infra_deployer_sa_email
+    }
+  }
+
+  depends_on = [
+    module.apis,
+    module.iam,
+  ]
+}

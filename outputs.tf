@@ -28,3 +28,16 @@ output "redirect_url" {
   description = "Public URL of the redirect Cloud Run service"
   value       = module.redirect_service.service_url
 }
+
+output "wif_provider_name" {
+  description = "Pass this as 'workload_identity_provider' in github-actions/auth@v2"
+  value       = module.workload_identity.provider_name
+}
+
+output "wif_pool_name" {
+  value = module.workload_identity.pool_name
+}
+
+output "project_number" {
+  value = module.workload_identity.project_number
+}
