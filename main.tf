@@ -129,3 +129,23 @@ module "workload_identity" {
     module.iam,
   ]
 }
+
+module "secrets" {
+  source = "./modules/secrets"
+
+  project_id = var.project_id
+
+  secrets = {
+    shortener-api-key = {
+      accessor_sa_emails = [module.iam.shortener_sa_email]
+    }
+    redis-auth-string = {
+      accessor_sa_emails = [module.iam.redirect_sa_email]
+    }
+  }
+
+  depends_on = [
+    module.apis,
+    module.iam,
+  ]
+}

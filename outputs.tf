@@ -41,3 +41,8 @@ output "wif_pool_name" {
 output "project_number" {
   value = module.workload_identity.project_number
 }
+
+output "secret_names" {
+  description = "Secret Manager secrets created (values must be populated manually)"
+  value       = module.secrets.secret_names
+}

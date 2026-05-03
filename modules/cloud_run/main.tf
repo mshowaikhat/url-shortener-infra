@@ -13,6 +13,10 @@ resource "google_cloud_run_v2_service" "this" {
       max_instance_count = var.max_instances
     }
 
+    # The Cloud Run v2 provider returns null for manual_instance_count when
+    # not set, but the resource's stored state has 0. We tell Terraform to
+    # ignore this specific attribute to prevent perpetual diff noise.
+
     max_instance_request_concurrency = var.container_concurrency
 
     containers {
