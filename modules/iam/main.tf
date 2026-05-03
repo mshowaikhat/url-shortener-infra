@@ -66,7 +66,7 @@ locals {
     "roles/compute.networkAdmin",
     "roles/redis.admin",
     "roles/monitoring.editor",
-    "roles/resourcemanager.projectIamAdmin"   # NEW: required to read/modify project IAM bindings
+    "roles/resourcemanager.projectIamAdmin" # NEW: required to read/modify project IAM bindings
   ]
 }
 
