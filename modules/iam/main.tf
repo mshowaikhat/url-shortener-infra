@@ -54,18 +54,19 @@ resource "google_project_iam_member" "redirect_roles" {
 
 locals {
   infra_deployer_roles = [
-    "roles/run.admin",                      # Manage Cloud Run
-    "roles/iam.serviceAccountAdmin",        # Manage SAs
-    "roles/iam.serviceAccountUser",         # Use SAs (deploy services as them)
-    "roles/artifactregistry.admin",         # Manage AR repos
-    "roles/secretmanager.admin",            # Manage secrets (not values)
-    "roles/datastore.owner",                # Manage Firestore
-    "roles/storage.admin",                  # Manage state bucket and any others
-    "roles/serviceusage.serviceUsageAdmin", # Enable APIs
-    "roles/iam.workloadIdentityPoolAdmin",  # Manage WIF (Slice 4)
-    "roles/compute.networkAdmin",           # VPC connector (B will use)
-    "roles/redis.admin",                    # Memorystore (B will use)
-    "roles/monitoring.editor"               # Alert policies (B will use)
+    "roles/run.admin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/iam.serviceAccountUser",
+    "roles/artifactregistry.admin",
+    "roles/secretmanager.admin",
+    "roles/datastore.owner",
+    "roles/storage.admin",
+    "roles/serviceusage.serviceUsageAdmin",
+    "roles/iam.workloadIdentityPoolAdmin",
+    "roles/compute.networkAdmin",
+    "roles/redis.admin",
+    "roles/monitoring.editor",
+    "roles/resourcemanager.projectIamAdmin"   # NEW: required to read/modify project IAM bindings
   ]
 }
 
