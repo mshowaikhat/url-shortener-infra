@@ -63,7 +63,7 @@ module "shortener_service" {
     FIRESTORE_COLLECTION   = "urls"
     LOG_LEVEL              = "INFO"
     OTEL_SERVICE_NAME      = "shortener"
-    REDIRECT_BASE_URL      = "https://placeholder.example.com" # Updated by us once redirect is live
+    REDIRECT_BASE_URL      = "https://redirect-142958366034.us-central1.run.app"
   }
 
   min_instances = 0
