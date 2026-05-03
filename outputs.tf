@@ -18,3 +18,13 @@ output "infra_deployer_sa_email" {
 output "firestore_database" {
   value = module.firestore.database_name
 }
+
+output "shortener_url" {
+  description = "Public URL of the shortener Cloud Run service"
+  value       = module.shortener_service.service_url
+}
+
+output "redirect_url" {
+  description = "Public URL of the redirect Cloud Run service"
+  value       = module.redirect_service.service_url
+}

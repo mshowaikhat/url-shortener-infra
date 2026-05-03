@@ -49,3 +49,56 @@ module "firestore" {
 
   depends_on = [module.apis]
 }
+
+module "shortener_service" {
+  source = "./modules/cloud_run"
+
+  project_id            = var.project_id
+  region                = var.region
+  service_name          = "shortener"
+  service_account_email = module.iam.shortener_sa_email
+
+  env_vars = {
+    GCP_PROJECT_ID         = var.project_id
+    FIRESTORE_COLLECTION   = "urls"
+    LOG_LEVEL              = "INFO"
+    OTEL_SERVICE_NAME      = "shortener"
+    REDIRECT_BASE_URL      = "https://placeholder.example.com" # Updated by us once redirect is live
+  }
+
+  min_instances = 0
+  max_instances = 5
+  memory        = "256Mi"
+
+  depends_on = [
+    module.apis,
+    module.firestore,
+    module.iam,
+  ]
+}
+
+module "redirect_service" {
+  source = "./modules/cloud_run"
+
+  project_id            = var.project_id
+  region                = var.region
+  service_name          = "redirect"
+  service_account_email = module.iam.redirect_sa_email
+
+  env_vars = {
+    GCP_PROJECT_ID       = var.project_id
+    FIRESTORE_COLLECTION = "urls"
+    LOG_LEVEL            = "INFO"
+    OTEL_SERVICE_NAME    = "redirect"
+  }
+
+  min_instances = 0 # B will tune this to 1 in their slice for low cold-start latency
+  max_instances = 10
+  memory        = "256Mi"
+
+  depends_on = [
+    module.apis,
+    module.firestore,
+    module.iam,
+  ]
+}
