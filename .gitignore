@@ -1,6 +1,12 @@
 # Local .terraform directories
 .terraform/
 
+# Scratch files that may contain secret material — never commit
+redis-auth.txt
+redis.txt
+*.secret
+*.secret.txt
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
