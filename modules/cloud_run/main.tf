@@ -8,14 +8,18 @@ resource "google_cloud_run_v2_service" "this" {
   template {
     service_account = var.service_account_email
 
+    dynamic "vpc_access" {
+      for_each = var.vpc_connector == null ? [] : [1]
+      content {
+        connector = var.vpc_connector
+        egress    = var.vpc_egress
+      }
+    }
+
     scaling {
       min_instance_count = var.min_instances
       max_instance_count = var.max_instances
     }
-
-    # The Cloud Run v2 provider returns null for manual_instance_count when
-    # not set, but the resource's stored state has 0. We tell Terraform to
-    # ignore this specific attribute to prevent perpetual diff noise.
 
     max_instance_request_concurrency = var.container_concurrency
 
@@ -27,6 +31,7 @@ resource "google_cloud_run_v2_service" "this" {
           cpu    = var.cpu
           memory = var.memory
         }
+
         cpu_idle          = true
         startup_cpu_boost = true
       }
@@ -42,21 +47,32 @@ resource "google_cloud_run_v2_service" "this" {
           value = env.value
         }
       }
+
+      dynamic "env" {
+        for_each = var.secret_env_vars
+        content {
+          name = env.key
+
+          value_source {
+            secret_key_ref {
+              secret  = env.value.secret
+              version = env.value.version
+            }
+          }
+        }
+      }
     }
   }
 
-  # The app pipeline owns the image after first deploy. Ignore image drift
-  # so `terraform apply` doesn't roll back a real deployment.
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
       client,
-      client_version,
+      client_version
     ]
   }
 }
 
-# Public access (only if allow_public_access = true)
 resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
   count = var.allow_public_access ? 1 : 0
 

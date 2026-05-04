@@ -31,3 +31,8 @@ variable "github_repo_infra" {
   description = "Name of the infra GitHub repo"
   default     = "url-shortener-infra"
 }
+
+variable "network" {
+  type    = string
+  default = "default"
+}

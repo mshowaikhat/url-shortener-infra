@@ -1,67 +1,72 @@
 variable "project_id" {
-  type        = string
-  description = "GCP project ID"
+  type = string
 }
 
 variable "region" {
-  type        = string
-  description = "Region for the Cloud Run service"
+  type = string
 }
 
 variable "service_name" {
-  type        = string
-  description = "Name of the Cloud Run service (e.g., 'shortener', 'redirect')"
+  type = string
 }
 
 variable "service_account_email" {
-  type        = string
-  description = "Service account the Cloud Run service runs as"
+  type = string
 }
 
 variable "image" {
-  type        = string
-  description = "Container image. Use a placeholder for first deploy; CI/CD overwrites it."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+  type = string
 }
 
 variable "env_vars" {
-  type        = map(string)
-  description = "Plain-text environment variables (non-secret)"
-  default     = {}
+  type    = map(string)
+  default = {}
+}
+
+variable "secret_env_vars" {
+  type = map(object({
+    secret  = string
+    version = string
+  }))
+  default = {}
+}
+
+variable "vpc_connector" {
+  type    = string
+  default = null
+}
+
+variable "vpc_egress" {
+  type    = string
+  default = "PRIVATE_RANGES_ONLY"
 }
 
 variable "min_instances" {
-  type        = number
-  description = "Minimum number of instances (0 allows scale-to-zero)"
-  default     = 0
+  type    = number
+  default = 0
 }
 
 variable "max_instances" {
-  type        = number
-  description = "Maximum number of instances"
-  default     = 5
+  type    = number
+  default = 1
 }
 
 variable "container_concurrency" {
-  type        = number
-  description = "Max concurrent requests per container instance"
-  default     = 80
-}
-
-variable "memory" {
-  type        = string
-  description = "Memory limit (e.g., '256Mi', '512Mi', '1Gi')"
-  default     = "256Mi"
+  type    = number
+  default = 80
 }
 
 variable "cpu" {
-  type        = string
-  description = "CPU limit (e.g., '1', '2')"
-  default     = "1"
+  type    = string
+  default = "1"
+}
+
+variable "memory" {
+  type    = string
+  default = "256Mi"
 }
 
 variable "allow_public_access" {
-  type        = bool
-  description = "If true, grant roles/run.invoker to allUsers (public)"
-  default     = true
+  type    = bool
+  default = true
 }

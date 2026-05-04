@@ -18,15 +18,13 @@ locals {
 }
 
 module "apis" {
-  source = "./modules/apis"
-
+  source     = "./modules/apis"
   project_id = var.project_id
   apis       = local.required_apis
 }
 
 module "artifact_registry" {
-  source = "./modules/artifact_registry"
-
+  source     = "./modules/artifact_registry"
   project_id = var.project_id
   region     = var.region
 
@@ -34,24 +32,38 @@ module "artifact_registry" {
 }
 
 module "iam" {
-  source = "./modules/iam"
-
+  source     = "./modules/iam"
   project_id = var.project_id
 
   depends_on = [module.apis]
 }
 
 module "firestore" {
-  source = "./modules/firestore"
-
+  source      = "./modules/firestore"
   project_id  = var.project_id
   location_id = var.region
 
   depends_on = [module.apis]
 }
 
+module "vpc" {
+  source  = "./modules/vpc_access"
+  region  = var.region
+  network = var.network
+}
+
+module "redis" {
+  source  = "./modules/memorystore"
+  region  = var.region
+  network = var.network
+
+  depends_on = [module.vpc]
+}
+
 module "shortener_service" {
   source = "./modules/cloud_run"
+
+  image = "us-docker.pkg.dev/cloudrun/container/hello"
 
   project_id            = var.project_id
   region                = var.region
@@ -80,19 +92,34 @@ module "shortener_service" {
 module "redirect_service" {
   source = "./modules/cloud_run"
 
+  image = "us-docker.pkg.dev/cloudrun/container/hello"
+
   project_id            = var.project_id
   region                = var.region
   service_name          = "redirect"
   service_account_email = module.iam.redirect_sa_email
+
+  vpc_connector = module.vpc.connector_id
+  vpc_egress    = "PRIVATE_RANGES_ONLY"
 
   env_vars = {
     GCP_PROJECT_ID       = var.project_id
     FIRESTORE_COLLECTION = "urls"
     LOG_LEVEL            = "INFO"
     OTEL_SERVICE_NAME    = "redirect"
+
+    REDIS_HOST = module.redis.host
+    REDIS_PORT = module.redis.port
   }
 
-  min_instances = 0 # B will tune this to 1 in their slice for low cold-start latency
+  secret_env_vars = {
+    REDIS_AUTH = {
+      secret  = "redis-auth-string"
+      version = "latest"
+    }
+  }
+
+  min_instances = 0
   max_instances = 10
   memory        = "256Mi"
 
@@ -100,23 +127,24 @@ module "redirect_service" {
     module.apis,
     module.firestore,
     module.iam,
+    module.redis,
+    module.vpc,
   ]
 }
 
 module "workload_identity" {
-  source = "./modules/workload_identity"
-
+  source       = "./modules/workload_identity"
   project_id   = var.project_id
   github_owner = var.github_owner
 
   repo_to_sa_bindings = {
     shortener = {
       repo_name = var.github_repo_shortener
-      sa_email  = module.iam.shortener_deployer_sa_email # was: shortener_sa_email
+      sa_email  = module.iam.shortener_deployer_sa_email
     }
     redirect = {
       repo_name = var.github_repo_redirect
-      sa_email  = module.iam.redirect_deployer_sa_email # was: redirect_sa_email
+      sa_email  = module.iam.redirect_deployer_sa_email
     }
     infra = {
       repo_name = var.github_repo_infra
@@ -131,8 +159,7 @@ module "workload_identity" {
 }
 
 module "secrets" {
-  source = "./modules/secrets"
-
+  source     = "./modules/secrets"
   project_id = var.project_id
 
   secrets = {
