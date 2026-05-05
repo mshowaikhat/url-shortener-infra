@@ -9,5 +9,5 @@ output "provider_name" {
 }
 
 output "project_number" {
-  value = data.google_project.this.number
+  value = var.project_number
 }

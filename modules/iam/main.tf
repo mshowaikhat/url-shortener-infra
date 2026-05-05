@@ -18,6 +18,12 @@ resource "google_service_account" "infra_deployer" {
   display_name = "Infra Repo Terraform Deployer (used by GitHub Actions via WIF)"
 }
 
+resource "google_service_account" "api_gateway" {
+  project      = var.project_id
+  account_id   = "api-gateway-sa"
+  display_name = "API Gateway Runtime SA (invokes Cloud Run backends)"
+}
+
 # ----- Roles for shortener-sa -----
 
 locals {
@@ -67,7 +73,8 @@ locals {
     "roles/redis.admin",
     "roles/monitoring.editor",
     "roles/vpcaccess.admin",
-    "roles/resourcemanager.projectIamAdmin" # NEW: required to read/modify project IAM bindings
+    "roles/resourcemanager.projectIamAdmin", # NEW: required to read/modify project IAM bindings
+    "roles/apigateway.admin"                 # Manage API Gateway api/config/gateway resources
   ]
 }
 

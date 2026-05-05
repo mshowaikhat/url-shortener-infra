@@ -54,3 +54,12 @@ output "shortener_deployer_sa_email" {
 output "redirect_deployer_sa_email" {
   value = module.iam.redirect_deployer_sa_email
 }
+
+output "api_gateway_sa_email" {
+  value = module.iam.api_gateway_sa_email
+}
+
+output "api_gateway_url" {
+  description = "Public HTTPS URL of the deployed API Gateway"
+  value       = "https://${module.api_gateway.gateway_default_hostname}"
+}

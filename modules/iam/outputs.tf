@@ -17,3 +17,7 @@ output "shortener_deployer_sa_email" {
 output "redirect_deployer_sa_email" {
   value = google_service_account.redirect_deployer.email
 }
+
+output "api_gateway_sa_email" {
+  value = google_service_account.api_gateway.email
+}

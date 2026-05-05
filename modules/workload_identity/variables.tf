@@ -3,6 +3,11 @@ variable "project_id" {
   description = "GCP project ID"
 }
 
+variable "project_number" {
+  type        = string
+  description = "GCP project number (read at root from data.google_project to avoid depends_on cascades)"
+}
+
 variable "github_owner" {
   type        = string
   description = "GitHub username or org (e.g., 'mshowaikhat')"

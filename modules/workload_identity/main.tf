@@ -1,7 +1,3 @@
-data "google_project" "this" {
-  project_id = var.project_id
-}
-
 # ----- Workload Identity Pool -----
 
 resource "google_iam_workload_identity_pool" "github" {
@@ -43,5 +39,5 @@ resource "google_service_account_iam_member" "wif_binding" {
 
   service_account_id = "projects/${var.project_id}/serviceAccounts/${each.value.sa_email}"
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/projects/${data.google_project.this.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/attribute.repository/${var.github_owner}/${each.value.repo_name}"
+  member             = "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/attribute.repository/${var.github_owner}/${each.value.repo_name}"
 }

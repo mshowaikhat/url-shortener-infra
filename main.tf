@@ -13,7 +13,10 @@ locals {
     "vpcaccess.googleapis.com",
     "redis.googleapis.com",
     "compute.googleapis.com",
-    "cloudresourcemanager.googleapis.com"
+    "cloudresourcemanager.googleapis.com",
+    "apigateway.googleapis.com",
+    "servicemanagement.googleapis.com",
+    "servicecontrol.googleapis.com"
   ]
 }
 
@@ -132,10 +135,15 @@ module "redirect_service" {
   ]
 }
 
+data "google_project" "this" {
+  project_id = var.project_id
+}
+
 module "workload_identity" {
-  source       = "./modules/workload_identity"
-  project_id   = var.project_id
-  github_owner = var.github_owner
+  source         = "./modules/workload_identity"
+  project_id     = var.project_id
+  project_number = data.google_project.this.number
+  github_owner   = var.github_owner
 
   repo_to_sa_bindings = {
     shortener = {
@@ -174,5 +182,26 @@ module "secrets" {
   depends_on = [
     module.apis,
     module.iam,
+  ]
+}
+
+module "api_gateway" {
+  source = "./modules/api_gateway"
+
+  providers = {
+    google      = google
+    google-beta = google-beta
+  }
+
+  project_id             = var.project_id
+  region                 = var.region
+  gateway_sa_email       = module.iam.api_gateway_sa_email
+  shortener_url          = module.shortener_service.service_url
+  shortener_service_name = module.shortener_service.service_name
+
+  depends_on = [
+    module.apis,
+    module.iam,
+    module.shortener_service,
   ]
 }
