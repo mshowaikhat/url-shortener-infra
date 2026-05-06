@@ -84,7 +84,9 @@ post_url() {
   local endpoint="$2"
   shift 2
 
-  echo "==> POST ${endpoint}/api/urls  [${label}]"
+  # All diagnostic output goes to stderr — stdout is reserved for the code
+  # so the caller can capture it via $(post_url ...).
+  echo "==> POST ${endpoint}/api/urls  [${label}]" >&2
   local status
   status="$(curl -sS -o "$BODY_FILE" -w '%{http_code}' \
     -X POST "${endpoint}/api/urls" \
@@ -118,7 +120,7 @@ except Exception:
   fi
 
   CREATED_CODES+=("$code")
-  echo "    -> code=${code}"
+  echo "    -> code=${code}" >&2
   printf '%s' "$code"
 }
 

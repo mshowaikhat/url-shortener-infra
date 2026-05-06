@@ -3,6 +3,10 @@ resource "google_cloud_run_v2_job" "this" {
   location = var.region
   name     = var.job_name
 
+  # See cloud_run module — same reasoning, the provider blocks destroy
+  # without this set.
+  deletion_protection = false
+
   template {
     # task_count / parallelism default to 1 — one task, no fan-out.
 

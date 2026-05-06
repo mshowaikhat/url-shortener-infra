@@ -16,7 +16,8 @@ locals {
     "cloudresourcemanager.googleapis.com",
     "apigateway.googleapis.com",
     "servicemanagement.googleapis.com",
-    "servicecontrol.googleapis.com"
+    "servicecontrol.googleapis.com",
+    "cloudbuild.googleapis.com" # restore.sh uses `gcloud builds submit`
   ]
 }
 

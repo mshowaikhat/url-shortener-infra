@@ -5,6 +5,12 @@ resource "google_cloud_run_v2_service" "this" {
 
   ingress = "INGRESS_TRAFFIC_ALL"
 
+  # The provider's deletion_protection guard refuses `terraform destroy`
+  # otherwise. Setting this false keeps `make destroy` working from any
+  # state — there's no practical loss of safety since terraform destroy
+  # itself already requires explicit invocation.
+  deletion_protection = false
+
   template {
     service_account = var.service_account_email
 
