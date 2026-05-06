@@ -185,6 +185,46 @@ module "secrets" {
   ]
 }
 
+module "migration_job" {
+  source = "./modules/migration_job"
+
+  project_id            = var.project_id
+  region                = var.region
+  job_name              = "shortener-migrate"
+  service_account_email = module.iam.shortener_sa_email
+
+  # Placeholder image — CI updates this on every push via
+  # `gcloud run jobs update --image=...` after deploying the service.
+  image   = "us-docker.pkg.dev/cloudrun/container/hello"
+  command = ["python", "-m", "app.migrate"]
+
+  env_vars = {
+    GCP_PROJECT_ID       = var.project_id
+    FIRESTORE_COLLECTION = "urls"
+    LOG_LEVEL            = "INFO"
+  }
+
+  max_retries = 0
+  timeout     = "600s"
+
+  depends_on = [
+    module.apis,
+    module.iam,
+    module.firestore,
+  ]
+}
+
+module "alerting" {
+  source     = "./modules/alerting"
+  project_id = var.project_id
+
+  # Thresholds: tune after observing baseline traffic.
+  error_rate_threshold     = 1.0  # 5xx req/s
+  latency_p95_threshold_ms = 2000 # 2 s p95
+
+  depends_on = [module.apis]
+}
+
 module "api_gateway" {
   source = "./modules/api_gateway"
 

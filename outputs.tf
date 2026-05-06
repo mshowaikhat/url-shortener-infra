@@ -63,3 +63,18 @@ output "api_gateway_url" {
   description = "Public HTTPS URL of the deployed API Gateway"
   value       = "https://${module.api_gateway.gateway_default_hostname}"
 }
+
+output "migration_job_name" {
+  description = "Cloud Run Job name — run with: gcloud run jobs execute shortener-migrate --region=us-central1"
+  value       = module.migration_job.job_name
+}
+
+output "alert_policy_error_rate" {
+  description = "Cloud Monitoring alert policy for high 5xx error rate"
+  value       = module.alerting.error_rate_policy_name
+}
+
+output "alert_policy_latency_p95" {
+  description = "Cloud Monitoring alert policy for high p95 latency"
+  value       = module.alerting.latency_p95_policy_name
+}
